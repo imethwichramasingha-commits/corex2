@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Corex 3D | Professional Interactive Web</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+        
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #010103; color: white; 
+            font-family: 'Poppins', sans-serif; overflow: hidden;
+        }
+        
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        
+        /* නවීන Navigation Bar එක */
+        header {
+            position: fixed; top: 0; width: 100%;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 25px 8%; background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(20px); z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            box-sizing: border-box;
+        }
+
+        .logo { 
+            font-size: 28px; font-weight: 700; color: #fff; 
+            text-decoration: none; letter-spacing: 2px;
+            cursor: pointer;
+        }
+        .logo span { color: #ff0080; }
+
+        nav ul { display: flex; list-style: none; gap: 40px; margin: 0; padding: 0; }
+        nav ul li a { 
+            color: #fff; text-decoration: none; font-size: 15px;
+            font-weight: 400; transition: 0.3s; text-transform: uppercase;
+            letter-spacing: 1px; cursor: pointer;
+        }
+        nav ul li a:hover { color: #ff0080; }
+
+        /* Main Container for Scrolling */
+        #main-container {
+            transition: transform 1.2s cubic-bezier(0.85, 0, 0.15, 1);
+            height: 100vh;
+        }
+
+        section {
+            height: 100vh; width: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; z-index: 10; padding: 0 10%; box-sizing: border-box;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 50px 70px; border-radius: 50px;
+            text-align: center; max-width: 850px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            transition: 0.5s;
+        }
+        .glass-panel:hover { border-color: rgba(255, 0, 128, 0.5); transform: translateY(-5px); }
+
+        h1 { font-size: 65px; margin: 0; font-weight: 700; line-height: 1.1; }
+        h2 { color: #ff0080; font-size: 45px; margin-bottom: 25px; }
+        p { color: #bbb; font-size: 19px; line-height: 1.8; font-weight: 300; }
+
+        .btn {
+            background: linear-gradient(45deg, #ff0080, #7928ca);
+            color: white; border: none; padding: 16px 45px; border-radius: 50px;
+            font-weight: 700; cursor: pointer; margin-top: 30px;
+            box-shadow: 0 10px 20px rgba(255, 0, 128, 0.3); transition: 0.3s;
+        }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(255, 0, 128, 0.5); }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas1"></canvas>
+
+    <header>
+        <a class="logo" onclick="goToSection(0)">COREX<span>3D</span></a>
+        <nav>
+            <ul>
+                <li><a onclick="goToSection(0)">Home</a></li>
+                <li><a onclick="goToSection(1)">About</a></li>
+                <li><a onclick="goToSection(2)">Services</a></li>
+                <li><a onclick="goToSection(3)">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="main-container">
+        <section id="home">
+            <div class="glass-panel">
+                <h1>FUTURE OF<br>WEB DESIGN</h1>
+                <p>Experience the next generation of interactive 3D websites. Custom built using HTML5, CSS3, and high-performance JavaScript.</p>
+                <button class="btn" onclick="goToSection(2)">Our Services</button>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="glass-panel">
+                <h2>Our Story</h2>
+                <p>We are a creative studio focused on high-end digital experiences. By blending 3D technology with clean UI, we make websites that don't just work—they wow.</p>
+            </div>
+        </section>
+
+        <section id="services">
+            <div class="glass-panel">
+                <h2>What We Do</h2>
+                <p>3D Interactive UI • WebGL Animations • High Performance Apps • Mobile Responsive Design</p>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="glass-panel">
+                <h2>Get In Touch</h2>
+                <p>Ready to start your project? Let's connect on Fiverr and build something legendary!</p>
+                <button class="btn">Message Now</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas1');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+        let mouse = { x: null, y: null, radius: 180 };
+
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+
+        // NAVIGATION LOGIC
+        let currentSection = 0;
+        const sections = 4;
+        let isScrolling = false;
+
+        function goToSection(index) {
+            currentSection = index;
+            document.getElementById('main-container').style.transform = `translateY(-${currentSection * 100}vh)`;
+        }
+
+        window.addEventListener('wheel', (e) => {
+            if (isScrolling) return;
+            isScrolling = true;
+            if (e.deltaY > 0 && currentSection < sections - 1) currentSection++;
+            else if (e.deltaY < 0 && currentSection > 0) currentSection--;
+            goToSection(currentSection);
+            setTimeout(() => { isScrolling = false; }, 1000);
+        });
+
+        class Particle {
+            constructor(x, y, dx, dy, size) {
+                this.x = x; this.y = y; this.dx = dx; this.dy = dy; this.size = size;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.fill();
+            }
+            update() {
+                this.x += this.dx;
+                this.y += this.dy;
+
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                if (distance < mouse.radius) {
+                    let force = (mouse.radius - distance) / mouse.radius;
+                    this.x -= (dx/distance) * force * 10;
+                    this.y -= (dy/distance) * force * 10;
+                }
+
+                if (this.x > canvas.width || this.x < 0) this.dx = -this.dx;
+                if (this.y > canvas.height || this.y < 0) this.dy = -this.dy;
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < 150; i++) {
+                let size = Math.random() * 2 + 1;
+                let x = Math.random() * canvas.width;
+                let y = Math.random() * canvas.height;
+                let dx = (Math.random() * 0.6) - 0.3;
+                let dy = (Math.random() * 0.6) - 0.3;
+                particlesArray.push(new Particle(x, y, dx, dy, size));
+            }
+        }
+
+        function connect() {
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) ** 2) + ((particlesArray[a].y - particlesArray[b].y) ** 2);
+                    if (distance < 18000) {
+                        ctx.strokeStyle = `rgba(255,255,255,${1 - distance/18000})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+                let dx = particlesArray[a].x - mouse.x;
+                let dy = particlesArray[a].y - mouse.y;
+                if (Math.sqrt(dx*dx + dy*dy) < mouse.radius) {
+                    ctx.strokeStyle = `rgba(255, 0, 128, ${1 - Math.sqrt(dx*dx+dy*dy)/mouse.radius})`;
+                    ctx.beginPath();
+                    ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particlesArray.forEach(p => p.update());
+            connect();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+        window.addEventListener('resize', () => { canvas.width = innerWidth; canvas.height = innerHeight; init(); });
+    </script>
+</body>
+</html>
